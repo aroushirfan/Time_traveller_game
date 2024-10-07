@@ -113,8 +113,8 @@ player_name=input()
 game_over= False
 win_game= False
 
-money= 3000
-pl_range= 1500
+money= 20000
+pl_range= 5000
 time= 15
 
 total_airports= fetch_airports()
@@ -133,22 +133,42 @@ while not game_over:
 
     time= update_time(player_id, present_airport)
 
+    if time<0:
+        print("Time's up! You have run out of time to complete your target")
+        game_over= True
+        break
+
     target= check_target(player_id, present_airport)
     if target:
-        print(f"\033[31mYayy! You have found {target['name']} and it is worth Rs {target['value']}.\033[0m")
-        q1= input("Do you want to redeem it for money (RS 200), range (100 km)? M= money and R=range.Press ENTER to skip.""")
-
-        if not q1 == "":
-            if q1 == "M":
-                money = money - 200
-            elif q1 == "R":
-                pl_range = pl_range - 100
-            if target['value'] > 0:
-                money += target['value']
-                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
-            elif target['value'] == 0:
-                win_game = True
-                break
+        if target["value"]==0:
+            print(f"\033[31mYayy! You have found {target['name']}.\033[0m")
+            win_game=True
+            break
+        else:
+            print(f"\033[31mYayy! You have found {target['name']} and it is worth {target['value']}.\033[0m")
+            q1= input("Do you want to redeem the prize for money (RS 100), range (100 km)? M= money and R=range.Press ENTER to skip.")
+            if not q1 == "":
+                if q1 == "M":
+                    while True:
+                        q1 = input("Do you want to redeem the prize for money (RS 100), range (100 km)? M= money and R=range.Press ENTER to skip.")
+                        if q1=="":
+                            break
+                        elif q1=="M":
+                            if money<100:
+                                print("You don't have enough range to redeem this prize!")
+                            else:
+                                money = money - 100
+                                money = money + target["value"]
+                                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
+                                break
+                        elif q1 == "R":
+                            if pl_range<100:
+                                print("You don't have enough range to redeem this prize!")
+                            else:
+                                pl_range = pl_range - 100
+                                money = money + target["value"]
+                                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
+                                break
     input("\033[95mPress ENTER to continue.\033[0m")
 
     if money>0:
