@@ -30,10 +30,10 @@ def fetch_targets():
     result = cursor.fetchall()
     return result
 
-def create_player (p_name, start_money, start_fuel, start_time, current_airport,air_ports):
-    sql = "INSERT INTO player (name,money,fuel,time,current_airport_id) VALUES (%s, %s, %s, %s, %s)"
+def create_player (p_name, start_money, start_range, start_time, current_airport,air_ports):
+    sql = "INSERT INTO player (name,money,given_range,time,current_airport_id) VALUES (%s, %s, %s, %s, %s)"
     cursor = connection.cursor(dictionary=True)
-    cursor.execute(sql,(p_name,start_money,start_fuel,start_time, current_airport))
+    cursor.execute(sql,(p_name,start_money,start_range,start_time, current_airport))
     play_id= cursor.lastrowid
 
     targets= fetch_targets()
@@ -77,20 +77,20 @@ def calculate_distance_by_coordinates(current_airport, target_airport):
     second= get_airport_by_icao(target_airport)
     return distance.distance((first['latitude_deg'], first['longitude_deg']),( second['latitude_deg'], second['longitude_deg'])).km
 
-def airports_in_domain(icao_code,air_ports,player_fuel):
+def airports_in_domain(icao_code,air_ports,player_range):
     in_domain_airports=[]
     for air_port in air_ports:
         dist_ance= calculate_distance_by_coordinates(icao_code, air_port['ident'])
-        if 0<dist_ance<=player_fuel:
+        if 0<dist_ance<=player_range:
             in_domain_airports.append(air_port)
     return in_domain_airports
 
-def update_game(icao, player_fuel, player_money, player_time, pl_id):
-    sql = f'''UPDATE player SET current_airport_id = %s, fuel = %s, money = %s, time= %s WHERE id = %s'''
+def update_game(icao, player_range, player_money, pl_id):
+    sql = f'''UPDATE player SET current_airport_id = %s, given_range = %s, money = %s WHERE id = %s'''
     cursor = connection.cursor(dictionary=True)
-    cursor.execute(sql, (icao, fuel, money, time, player_id))
+    cursor.execute(sql, (icao, player_range, player_money, pl_id))
 
-def update_time(player_id, airport_id):
+def update_time(pla_id, airport_id):
     sql= "SELECT time FROM player WHERE id = %s"
     cursor = connection.cursor(dictionary=True)
     cursor.execute(sql,(player_id,))
@@ -99,6 +99,7 @@ def update_time(player_id, airport_id):
     new_time= current_time -1
     sql_update_time= "UPDATE player SET time = %s WHERE id = %s"
     cursor.execute(sql_update_time,(new_time,player_id))
+    return new_time
 
 print("Welcome dear player to the realm of time traveller's quest! Are you ready to save the future?")
 storyDialog= input("Would you like to have a guide about game flow? If yes then type yes: ")
@@ -112,44 +113,42 @@ player_name=input()
 game_over= False
 win_game= False
 
-money= 10000
-fuel= 2500
+money= 3000
+pl_range= 1500
 time= 15
 
 total_airports= fetch_airports()
 begin_airport = total_airports[0]['ident']
 
 present_airport= begin_airport
-player_id= create_player(player_name,money,fuel,time,begin_airport,total_airports)
+player_id= create_player(player_name,money,pl_range,time,begin_airport,total_airports)
 
 while not game_over:
     airport= get_airport_by_icao(present_airport)
-    print(f'''Dear time traveller, you are at {airport['airport_name']}.''')
-    print(f"You have Rs {money} amount of money, {fuel} litres of fuel and {time} minutes.")
-    print("Please note that you can travel upto 12.5 km with 1 litre of fuel and you lose 1 minute for every airport you visit.")
+    print(f'''Dear time traveller, you are at {airport['airport_name']}, {airport['ident']}.''')
+    print(f"You have Rs {money} amount of money, {pl_range} km of range, and {time} minutes.")
+    print("Please note that you lose 1 minute for every airport you visit.")
     print("If you are ready then the floor is yours. Only you can change the history and save the world.")
     input("\033[95mPress ENTER to continue.\033[0m")
 
-    update_time(player_id,present_airport)
+    time= update_time(player_id, present_airport)
 
     target= check_target(player_id, present_airport)
     if target:
-        print(f"\033[31mYayy! You have found {target['name']} and it is worth Rs {target['money']}.\033[0m")
-        q1= input(
-            """Do you want to redeem it for money (RS 500), fuel (100 litres)? M= money and F= fuel. Press ENTER to skip.""")
+        print(f"\033[31mYayy! You have found {target['name']} and it is worth Rs {target['value']}.\033[0m")
+        q1= input("Do you want to redeem it for money (RS 200), range (100 km)? M= money and R=range.Press ENTER to skip.""")
+
         if not q1 == "":
             if q1 == "M":
-                money= money -500
-            elif q1 == "F":
-                fuel= fuel -100
+                money = money - 200
+            elif q1 == "R":
+                pl_range = pl_range - 100
             if target['value'] > 0:
                 money += target['value']
-                print(f"\033[32mYour updated amount of money is {money}.\033[0m")
+                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
             elif target['value'] == 0:
-                win_game= True
-                print("Congrats! You have won the game because you found the event airport and successfully stopped the bomb blast.")
-                print("You have managed your resources well and achieved the target within given time.")
-                print("You are now being teleported to present to your original location through our Nexus Gate.")
+                win_game = True
+                break
     input("\033[95mPress ENTER to continue.\033[0m")
 
     if money>0:
@@ -163,12 +162,12 @@ while not game_over:
                 if q2 == "":
                     break
             if q2<=money:
-                fuel= fuel + q2
+                pl_range= pl_range + q2
                 money= money - q2
-                print(f"\033[32mYour updated amount of money is {money} and fuel is {fuel}.\033[0m")
+                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
 
-    airports= airports_in_domain(present_airport,total_airports,fuel)
-    print(f"Time Traveller you have {len(airports)} in domain and have {time} minutes left.")
+    airports= airports_in_domain(present_airport,total_airports,pl_range)
+    print(f"Time Traveller you have {len(airports)} in domain.")
     if len(airports)==0:
         print("Dang! You have no fuel available to visit any airport.")
         game_over= True
@@ -179,8 +178,11 @@ while not game_over:
             print(f"Airport name:{airport['airport_name']}, ICAO code: {airport['ident']}, Distance: {airport_distance} ")
         travel= input("ENTER the ICAO code of the airport you want to travel to.")
         distance_travelled= calculate_distance_by_coordinates(present_airport,travel)
-        fuel= fuel - distance_travelled*0.08
-        update_game(distance_travelled, fuel, money, time, player_id)
+        pl_range= pl_range - distance_travelled
+
+        update_game(distance_travelled, pl_range, money, player_id)
+        present_airport = travel
+
 
 if win_game:
     print("\033[95mCongrats! You have won the game.\033[0m")
