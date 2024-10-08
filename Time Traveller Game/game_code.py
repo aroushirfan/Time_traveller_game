@@ -169,11 +169,11 @@ while not game_over:
                         break
                 else:
                     print("Invalid choice. Please enter either M or R.")
-    input("\033[95mPress ENTER to continue.\033[0m")
+
 
     if money>0:
         print("Dear time traveller, if you want to buy fuel here is your chance to do so.")
-        q2= input("\033[32mThe rate is Rs 1= 1km. Enter amount of money or press ENTER to skip \033[31m")
+        q2= input("\033[32mThe rate is Rs 1= 1km. Enter amount of money or press ENTER to skip \033[0m")
         if not q2 == "":
             q2= float(q2)
             while q2 > money:
@@ -186,19 +186,22 @@ while not game_over:
                 money= money - q2
                 print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
 
-    airports= airports_in_domain(present_airport,total_airports,pl_range)
-    print(f"Time Traveller you have {len(airports)} in domain.")
-    if len(airports)==0:
+
+    airports = airports_in_domain(present_airport, total_airports, pl_range)
+    print(f"\033[31mTime Traveller you have {len(airports)} in domain.\033[0m")
+
+    if len(airports) == 0:
         print("Dang! You have no fuel available to visit any airport.")
-        game_over= True
+        game_over = True
     else:
         print(f"Airports:")
         for airport in airports:
-            airport_distance= calculate_distance_by_coordinates(present_airport,airport['ident'])
-            print(f"Airport name:{airport['airport_name']}, ICAO code: {airport['ident']}, Distance: {airport_distance} ")
-        travel= input("ENTER the ICAO code of the airport you want to travel to: ")
-        distance_travelled= calculate_distance_by_coordinates(present_airport,travel)
-        pl_range= pl_range - distance_travelled
+            airport_distance = calculate_distance_by_coordinates(present_airport, airport['ident'])
+            print(
+                f"Airport name:{airport['airport_name']}, ICAO code: {airport['ident']}, Distance: {airport_distance} ")
+        travel = input("ENTER the ICAO code of the airport you want to travel to")
+        distance_travelled = calculate_distance_by_coordinates(present_airport, travel)
+        pl_range = pl_range - distance_travelled
 
         update_game(distance_travelled, pl_range, money, player_id)
         present_airport = travel
@@ -210,4 +213,4 @@ if win_game:
     print("\033[34mYou have managed your resources well and achieved the target within given time.\033[0m")
     print("\033[34mYou are now being teleported to present to your original location through our Nexus Gate.\033[0m")
 else:
-    print("\033[31mYou have lost the game. You can still try again to save the world with a new gaming session.\033[0m")
+    print("You have lost the game. You can still try again to save the world with a new gaming session.")
