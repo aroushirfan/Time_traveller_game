@@ -146,34 +146,34 @@ while not game_over:
             break
         else:
             print(f"\033[31mYayy! You have found {target['name']} and it is worth {target['value']}.\033[0m")
-            q1= input("Do you want to redeem the prize for money (RS 100), range (100 km)? M= money and R=range.Press ENTER to skip.")
-            if not q1 == "":
-                if q1 == "M":
-                    while True:
-                        q1 = input("Do you want to redeem the prize for money (RS 100), range (100 km)? M= money and R=range.Press ENTER to skip.")
-                        if q1=="":
-                            break
-                        elif q1=="M":
-                            if money<100:
-                                print("You don't have enough range to redeem this prize!")
-                            else:
-                                money = money - 100
-                                money = money + target["value"]
-                                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
-                                break
-                        elif q1 == "R":
-                            if pl_range<100:
-                                print("You don't have enough range to redeem this prize!")
-                            else:
-                                pl_range = pl_range - 100
-                                money = money + target["value"]
-                                print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
-                                break
+            while True:
+                q1 = input(
+                    "Do you want to redeem the prize for money (RS 100), range (100 km)? M= money and R=range.Press ENTER to skip.")
+                if q1 == "":
+                    break
+                elif q1 == "M":
+                    if money < 100:
+                        print("You don't have enough range to redeem this prize!")
+                    else:
+                        money = money - 100
+                        money = money + target["value"]
+                        print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
+                        break
+                elif q1 == "R":
+                    if pl_range < 100:
+                        print("You don't have enough range to redeem this prize!")
+                    else:
+                        pl_range = pl_range - 100
+                        money = money + target["value"]
+                        print(f"\033[32mYour updated amount of money is {money} and range is {pl_range}.\033[0m")
+                        break
+                else:
+                    print("Invalid choice. Please enter either M or R.")
     input("\033[95mPress ENTER to continue.\033[0m")
 
     if money>0:
         print("Dear time traveller, if you want to buy fuel here is your chance to do so.")
-        q2= input("\033[32mThe rate is Rs 1= 1km. Enter amount of money or press ENTER to skip \033[0m")
+        q2= input("\033[32mThe rate is Rs 1= 1km. Enter amount of money or press ENTER to skip \033[31m")
         if not q2 == "":
             q2= float(q2)
             while q2 > money:
@@ -196,7 +196,7 @@ while not game_over:
         for airport in airports:
             airport_distance= calculate_distance_by_coordinates(present_airport,airport['ident'])
             print(f"Airport name:{airport['airport_name']}, ICAO code: {airport['ident']}, Distance: {airport_distance} ")
-        travel= input("ENTER the ICAO code of the airport you want to travel to.")
+        travel= input("ENTER the ICAO code of the airport you want to travel to: ")
         distance_travelled= calculate_distance_by_coordinates(present_airport,travel)
         pl_range= pl_range - distance_travelled
 
@@ -210,4 +210,4 @@ if win_game:
     print("\033[34mYou have managed your resources well and achieved the target within given time.\033[0m")
     print("\033[34mYou are now being teleported to present to your original location through our Nexus Gate.\033[0m")
 else:
-    print("You have lost the game. You can still try again to save the world with a new gaming session.")
+    print("\033[31mYou have lost the game. You can still try again to save the world with a new gaming session.\033[0m")
