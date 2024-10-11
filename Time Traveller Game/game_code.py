@@ -177,8 +177,8 @@ while not game_over:
         if not q2 == "":
             q2= float(q2)
             while q2 > money:
-                print(f"You are broke. You don't have enough amount of money to buy fuel.")
-                q2 = float(input("\033[32mPlease enter valid amount of money or press ENTER to skip\033[0m"))
+                print(f"You don't have enough amount of money to buy fuel.")
+                q2 = float(input("\033[32mPlease enter valid amount of money or press ENTER to skip \033[0m"))
                 if q2 == "":
                     break
             if q2<=money:
@@ -199,7 +199,7 @@ while not game_over:
             airport_distance = calculate_distance_by_coordinates(present_airport, airport['ident'])
             print(
                 f"Airport name:{airport['airport_name']}, ICAO code: {airport['ident']}, Distance: {airport_distance} ")
-        travel = input("ENTER the ICAO code of the airport you want to travel to")
+        travel = input("ENTER the ICAO code of the airport you want to travel to: ")
         distance_travelled = calculate_distance_by_coordinates(present_airport, travel)
         pl_range = pl_range - distance_travelled
 
